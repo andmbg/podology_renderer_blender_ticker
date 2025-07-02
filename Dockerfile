@@ -6,9 +6,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg \
         git \
         build-essential \
-        python3-poetry \
-        blender && \
-    rm -rf /var/lib/apt/lists/*
+        wget \
+        ca-certificates \
+        libgl1 \
+        libxrender1 \
+        libx11-6 \
+        libxi6 \
+        libsm6 \
+        libegl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Blender 4.0.2
+RUN wget https://download.blender.org/release/Blender4.0/blender-4.0.2-linux-x64.tar.xz && \
+    tar -xf blender-4.0.2-linux-x64.tar.xz && \
+    mv blender-4.0.2-linux-x64 /opt/blender && \
+    ln -s /opt/blender/blender /usr/bin/blender && \
+    rm blender-4.0.2-linux-x64.tar.xz
 
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 
