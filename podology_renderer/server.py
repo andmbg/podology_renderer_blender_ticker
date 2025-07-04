@@ -30,6 +30,7 @@ load_dotenv(find_dotenv())
 API_TOKEN = os.getenv("API_TOKEN")
 UPLOAD_DIR = Path("/tmp/audio_files")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+JDB = "jobs.db"
 
 # Create the FastAPI app
 app = FastAPI()
@@ -90,7 +91,7 @@ async def render(
     job_id = generate_job_id()
     logger.info(f"{job_id}: Received a render request")
     with get_jobs() as JOBS:
-        JOBS[job_id] = {"status": "processing", "result": None}
+        JOBS[job_id] = {"status": "processing"}
 
     # Prepare the ticker object:
     ticker = ticker_from_timed_naments(naments)
@@ -124,7 +125,7 @@ def get_status(
     
     if job["status"] == "done":
         logger.debug(f"Job {job_id} is done")
-        return {"status": "done", "result": job["result"]}
+        return {"status": "done"}
 
     return {"status": job["status"]}
 
@@ -135,16 +136,17 @@ def get_result(
     request: Request = None,
     _: None = Depends(check_api_token),
 ):
-    with get_jobs() as JOBS:
+    with shelve.open(JDB, writeback=True) as JOBS:
         job = JOBS.get(job_id)
-    if not job:
+    if not job or "result" not in job or "video_path" not in job["result"]:
         raise HTTPException(status_code=404, detail="Job not found")
     if job["status"] != "done":
-        raise HTTPException(status_code=202, detail="Transcription not finished")
+        raise HTTPException(status_code=400, detail="Job is not done yet")
 
-    result = job["result"]
-    video_path = Path(result["video_path"])
-    if not video_path or not video_path.exists():
+    # Get the video path from the job result
+    video_path = Path(job["result"]["video_path"])
+
+    if video_path is None or not video_path.exists():
         raise HTTPException(status_code=404, detail="Video file not found")
 
     logger.debug(f"Sending out video file: {video_path}")

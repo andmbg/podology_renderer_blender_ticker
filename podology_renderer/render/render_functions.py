@@ -5,11 +5,11 @@ import subprocess
 
 from loguru import logger
 
-JOBS_DB_PATH = "jobs.db"
+JDB = "jobs.db"
 
 
 def get_jobs():
-    return shelve.open(JOBS_DB_PATH, writeback=True)
+    return shelve.open(JDB, writeback=True)
 
 
 def process_video(ticker_path: str, job_id: str, frame_step: int = 10):
@@ -24,11 +24,11 @@ def process_video(ticker_path: str, job_id: str, frame_step: int = 10):
     """
     try:
         result = run_blender(ticker_path, job_id, frame_step)
-        with get_jobs() as JOBS:
-            JOBS[job_id] = {"status": "done", "result": result}
+        with shelve.open(JDB, writeback=True) as jobs:
+            jobs[job_id] = {"status": "done", "result": result}
     except Exception as e:
-        with get_jobs() as JOBS:
-            JOBS[job_id] = {"status": "failed", "error": str(e)}
+        with get_jobs() as jobs:
+            jobs[job_id] = {"status": "failed", "error": str(e)}
     finally:
         ticker_path.unlink(missing_ok=True)
 
@@ -50,7 +50,7 @@ def run_blender(
         blender_path (str): Path to the Blender executable.
         render_script (str): Path to the Blender Python script to run.
     Returns:
-        dict: Result of the rendering process (stdout, stderr, out file path)
+        dict: Result of the rendering process (stdout, stderr, video path)
     """
     logger.debug(f"Running Blender...")
 
@@ -76,7 +76,7 @@ def run_blender(
     stderr = result.stderr
 
     logger.info(f"Blender stdout: {stdout}")
-    logger.error(f"Blender stderr: {stderr}")
+    logger.info(f"Blender stderr: {stderr}")
 
     return {
         "stdout": stdout,
