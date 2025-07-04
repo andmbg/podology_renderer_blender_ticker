@@ -44,9 +44,7 @@ COPY pyproject.toml pyproject.toml
 COPY poetry.lock poetry.lock
 RUN poetry install --no-root --no-interaction --no-ansi
 
-ENV LIBGL_ALWAYS_SOFTWARE=1
-ENV PYOPENGL_PLATFORM=osmesa
-ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+#ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 RUN mkdir -p /tmp/runtime-root
 
 CMD ["poetry", "run", "uvicorn", "podology_renderer.server:app", "--host", "0.0.0.0", "--port", "8002"]

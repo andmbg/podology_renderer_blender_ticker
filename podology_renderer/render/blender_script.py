@@ -41,9 +41,12 @@ print(f"Opened canvas file: {canvas_path}")
 bpy.context.scene.render.filepath = f"podology_renderer/render/tmp/{job_id}.mp4"
 bpy.context.scene.render.image_settings.file_format = "FFMPEG"
 bpy.context.scene.render.ffmpeg.format = "MPEG4"  # H.264 MP4
-bpy.data.scenes["Scene"].render.engine = "BLENDER_EEVEE"
 bpy.data.scenes["Scene"].render.fps = ticker.fps
 bpy.data.scenes["Scene"].frame_step = int(frame_step)
+
+bpy.data.scenes["Scene"].render.engine = "CYCLES"
+bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
+bpy.data.scenes["Scene"].cycles.device = "GPU"
 
 lane_spacing = 1.5
 bpy.context.scene.frame_end = int(ticker.end * ticker.fps)
