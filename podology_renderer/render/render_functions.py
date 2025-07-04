@@ -81,5 +81,5 @@ def run_blender(
     return {
         "stdout": stdout,
         "stderr": stderr,
-        "video_path": f"{ticker_path.stem}.mp4",
+        "video_path": f"podology_renderer/render/tmp/{ticker_path.stem}.mp4",
     }
