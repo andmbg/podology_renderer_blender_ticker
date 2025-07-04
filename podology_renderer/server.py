@@ -117,6 +117,14 @@ def get_status(
         job = JOBS.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+    
+    if job["status"] == "processing":
+        logger.debug(f"Job {job_id} is still processing")
+        return {"status": "processing"}
+    
+    if job["status"] == "done":
+        logger.debug(f"Job {job_id} is done")
+        return {"status": "done", "result": job["result"]}
 
     return {"status": job["status"]}
 
