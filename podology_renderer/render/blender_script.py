@@ -38,6 +38,7 @@ bpy.ops.wm.open_mainfile(filepath=canvas_path)
 print(f"Opened canvas file: {canvas_path}")
 
 # Verify/Set render output to video (if not already configured in the .blend file)
+bpy.context.scene.render.engine = "BLENDER_EEVEE"
 bpy.context.scene.render.filepath = f"podology_renderer/render/tmp/{job_id}.mp4"
 bpy.context.scene.render.image_settings.file_format = "FFMPEG"
 bpy.context.scene.render.ffmpeg.format = "MPEG4"  # H.264 MP4
