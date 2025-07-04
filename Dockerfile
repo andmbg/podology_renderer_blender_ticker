@@ -28,6 +28,12 @@ RUN apt-get install -y \
     libglu1-mesa-dev \
     libosmesa6-dev \
     libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    libosmesa6 \
+    libegl1-mesa \
+    xvfb \
+    xauth \
+    xfonts-base \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ln -sf /usr/bin/python3 /usr/bin/python

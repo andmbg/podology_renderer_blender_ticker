@@ -57,6 +57,8 @@ def run_blender(
     render_script_resolved = str((Path(__file__).parent / render_script).resolve())
 
     cmd = [
+        "xvfb-run",
+        "-a",
         blender_path,
         "--background",
         "--python",
