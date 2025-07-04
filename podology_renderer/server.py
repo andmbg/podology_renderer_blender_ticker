@@ -147,7 +147,8 @@ def get_result(
     video_path = Path(job["result"]["video_path"])
 
     if video_path is None or not video_path.exists():
-        raise HTTPException(status_code=404, detail="Video file not found")
+        detail = f"path: {str(video_path)}; cwd: {os.getcwd()}"
+        raise HTTPException(status_code=404, detail=detail)
 
     logger.debug(f"Sending out video file: {video_path}")
     return FileResponse(
