@@ -37,7 +37,7 @@ def run_blender(
     ticker_path: str,
     job_id: str,
     frame_step: int,
-    blender_path="/usr/bin/blender",
+    blender_path="blender",
     render_script="blender_script.py",
 ) -> dict:
     """Call Blender to run blender_script.py for a given episode.

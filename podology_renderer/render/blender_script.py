@@ -41,11 +41,16 @@ print(f"Opened canvas file: {canvas_path}")
 # Cycles:
 #
 
-# Trigger device detection for use of GPU with cycles:
-prefs = bpy.context.preferences.addons["cycles"].preferences
-prefs.get_devices()  
-bpy.data.scenes["Scene"].render.engine = "CYCLES"
-bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
+## Trigger device detection for use of GPU with cycles:
+#prefs = bpy.context.preferences.addons["cycles"].preferences
+#prefs.get_devices()  
+#bpy.data.scenes["Scene"].render.engine = "CYCLES"
+#bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
+
+#
+# EEVEE
+#
+bpy.data.scenes["Scene"].render.engine = "BLENDER_EEVEE_NEXT"
 
 # Verify/Set render output to video (if not already configured in the .blend file)
 bpy.context.scene.render.filepath = f"podology_renderer/render/tmp/{job_id}.mp4"
