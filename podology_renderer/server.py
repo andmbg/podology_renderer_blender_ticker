@@ -52,8 +52,6 @@ def check_api_token(request: Request):
     if not auth or not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     token = auth.split(" ")[1]
-    logger.info(f"Received token: {token}")
-    logger.info(f"Expected token: {API_TOKEN}")
     if token != API_TOKEN:
         raise HTTPException(status_code=403, detail="Invalid API token")
 
