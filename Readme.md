@@ -26,7 +26,7 @@ With `.env` in place, enter
 
 Wait for the image to build, then run it.
 
-### 3. run
+### 3. Run
 
 Run the docker image using
 
