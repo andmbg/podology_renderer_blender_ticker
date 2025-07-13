@@ -1,6 +1,6 @@
 # Scoll video renderer API for the Podology app
 
-This is a simple FastAPI server that expects a call from within a `Renderer` object in Podology containing a list of (timestamp, token) tuples representing the named entities identified in a transcript. It then prepares from it a video that is tailored to being displayed next to an episode transcript and synced to its scroll position. In its present form, named entities scroll horizontally through the image, but really there are no limits to how one might want to map scroll position in the transcript (think: user attention) to representation of named entities in the view.
+This is a simple FastAPI server that expects a call from within a `Renderer` object in [Podology](https://github.com/andmbg/podology) containing a list of (timestamp, token) tuples representing the named entities identified in a transcript. It then prepares from it a video that is tailored to being displayed next to an episode transcript and synced to its scroll position. In its present form, named entities scroll horizontally through the image, but really there are no limits to how one might want to map scroll position in the transcript (think: user attention) to representation of named entities in the view.
 
 ## Getting started
 
@@ -26,7 +26,7 @@ With `.env` in place, enter
 
 Wait for the image to build, then run it.
 
-### 3. run
+### 3. Run
 
 Run the docker image using
 
