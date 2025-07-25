@@ -126,8 +126,46 @@ def get_status(
     if job["status"] == "done":
         logger.debug(f"Job {job_id} is done")
         return {"status": "done"}
+    
+    if job["status"] == "failed":
+        logger.debug(f"Job {job_id} failed")
+        error_detail = job.get("error", "Unknown error")
+        return {"status": "failed", "error": error_detail}
 
     return {"status": job["status"]}
+
+
+@app.get("/debug/{job_id}")
+def get_debug_info(
+    job_id: str,
+    request: Request = None,
+    _: None = Depends(check_api_token),
+):
+    """Get detailed debugging information for a job, including full Blender output."""
+    logger.debug(f"Getting debug info for job {job_id}")
+    with get_jobs() as JOBS:
+        job = JOBS.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Return the complete job data for debugging
+    debug_info = {
+        "job_id": job_id,
+        "status": job["status"],
+        "full_job_data": job
+    }
+    
+    # Add system information
+    debug_info["system_info"] = {
+        "cwd": os.getcwd(),
+        "python_path": sys.path[:3],  # First few entries
+        "environment_vars": {
+            k: v for k, v in os.environ.items() 
+            if k.startswith(('API_', 'HF_', 'PYTHONPATH', 'PATH'))
+        }
+    }
+    
+    return debug_info
 
 
 @app.get("/result/{job_id}")
@@ -138,16 +176,33 @@ def get_result(
 ):
     with shelve.open(JDB, writeback=True) as JOBS:
         job = JOBS.get(job_id)
-    if not job or "result" not in job or "video_path" not in job["result"]:
+    
+    if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+    
+    if job["status"] == "failed":
+        error_detail = job.get("error", "Unknown error")
+        # If error is a dict, format it nicely for the response
+        if isinstance(error_detail, dict):
+            error_msg = error_detail.get("error_message", "Unknown error")
+            if "stdout" in error_detail or "stderr" in error_detail:
+                error_msg += f" (Use /debug/{job_id} endpoint for full Blender output)"
+        else:
+            error_msg = str(error_detail)
+        raise HTTPException(status_code=400, detail=f"Job failed: {error_msg}")
+    
     if job["status"] != "done":
         raise HTTPException(status_code=400, detail="Job is not done yet")
+    
+    if "result" not in job or "video_path" not in job["result"]:
+        raise HTTPException(status_code=500, detail="Job marked as done but result data is missing")
 
     # Get the video path from the job result
     video_path = Path(job["result"]["video_path"])
 
-    if video_path is None or not video_path.exists():
-        detail = f"path: {str(video_path)}; cwd: {os.getcwd()}"
+    if not video_path.exists():
+        detail = f"Video file not found. path: {str(video_path)}; cwd: {os.getcwd()}; job_result: {job.get('result', {})}"
+        logger.error(f"Job {job_id}: {detail}")
         raise HTTPException(status_code=404, detail=detail)
 
     logger.debug(f"Sending out video file: {video_path}")
