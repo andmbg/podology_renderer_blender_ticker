@@ -88,7 +88,7 @@ async def render(
     naments = [(token, float(timestamp)) for timestamp, token in naments]
     frame_step = req.frame_step
 
-    job_id = generate_job_id()
+    job_id = req.job_id
     logger.info(f"{job_id}: Received a render request")
     with get_jobs() as JOBS:
         JOBS[job_id] = {"status": "processing"}
