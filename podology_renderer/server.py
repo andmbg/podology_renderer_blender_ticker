@@ -38,12 +38,8 @@ app = FastAPI()
 
 class RenderRequest(BaseModel):
     naments: str
+    job_id: str
     frame_step: int = 10
-
-
-def generate_job_id(length=8):
-    # Generates a random 8-character hex string
-    return f"jid_{secrets.token_hex(length // 2)}"
 
 
 def check_api_token(request: Request):
@@ -83,7 +79,6 @@ async def render(
     Returns:
         A JSON response with a job ID for tracking the rendering process.
     """
-
     naments = json.loads(req.naments)
     naments = [(token, float(timestamp)) for timestamp, token in naments]
     frame_step = req.frame_step
@@ -118,15 +113,15 @@ def get_status(
         job = JOBS.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    
+
     if job["status"] == "processing":
         logger.debug(f"Job {job_id} is still processing")
         return {"status": "processing"}
-    
+
     if job["status"] == "done":
         logger.debug(f"Job {job_id} is done")
         return {"status": "done"}
-    
+
     if job["status"] == "failed":
         logger.debug(f"Job {job_id} failed")
         error_detail = job.get("error", "Unknown error")
@@ -147,24 +142,21 @@ def get_debug_info(
         job = JOBS.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    
+
     # Return the complete job data for debugging
-    debug_info = {
-        "job_id": job_id,
-        "status": job["status"],
-        "full_job_data": job
-    }
-    
+    debug_info = {"job_id": job_id, "status": job["status"], "full_job_data": job}
+
     # Add system information
     debug_info["system_info"] = {
         "cwd": os.getcwd(),
         "python_path": sys.path[:3],  # First few entries
         "environment_vars": {
-            k: v for k, v in os.environ.items() 
-            if k.startswith(('API_', 'HF_', 'PYTHONPATH', 'PATH'))
-        }
+            k: v
+            for k, v in os.environ.items()
+            if k.startswith(("API_", "HF_", "PYTHONPATH", "PATH"))
+        },
     }
-    
+
     return debug_info
 
 
@@ -176,10 +168,10 @@ def get_result(
 ):
     with shelve.open(JDB, writeback=True) as JOBS:
         job = JOBS.get(job_id)
-    
+
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    
+
     if job["status"] == "failed":
         error_detail = job.get("error", "Unknown error")
         # If error is a dict, format it nicely for the response
@@ -190,12 +182,14 @@ def get_result(
         else:
             error_msg = str(error_detail)
         raise HTTPException(status_code=400, detail=f"Job failed: {error_msg}")
-    
+
     if job["status"] != "done":
         raise HTTPException(status_code=400, detail="Job is not done yet")
-    
+
     if "result" not in job or "video_path" not in job["result"]:
-        raise HTTPException(status_code=500, detail="Job marked as done but result data is missing")
+        raise HTTPException(
+            status_code=500, detail="Job marked as done but result data is missing"
+        )
 
     # Get the video path from the job result
     video_path = Path(job["result"]["video_path"])

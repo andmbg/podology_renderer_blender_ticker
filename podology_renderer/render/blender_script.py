@@ -86,7 +86,7 @@ print(f"Opened canvas file: {canvas_path}")
 #
 # EEVEE
 #
-bpy.data.scenes["Scene"].render.engine = "BLENDER_EEVEE_NEXT"
+bpy.data.scenes["Scene"].render.engine = "BLENDER_EEVEE"
 
 # Verify/Set render output to video (if not already configured in the .blend file)
 bpy.context.scene.render.filepath = f"podology_renderer/render/tmp/{job_id}.mp4"
