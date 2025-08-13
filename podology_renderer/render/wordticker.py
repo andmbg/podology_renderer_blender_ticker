@@ -22,12 +22,12 @@ class Appearance:
 
         Args:
             term (str): the word or term that appears.
+            apid (str): unique identifier for the appearance, usually a combination of term and index.
             timestamp (float, optional): center of the object on the timeline. Must be None
               if start and end are given.
             start (float, optional): start time of the Appearance. Use with `end`.
             end (float, optional): end time of the Appearance. Use with `start`.
-            envelope_width (int, optional): total length of the Appearance. Use with `timestamp`.
-            smoothing (float, optional): degree of spline smoothing. Sensible values are .1-.9.
+            width (int, optional): total length of the Appearance. Use with `timestamp`.
         """
         self.term = term
         self.apid = apid
